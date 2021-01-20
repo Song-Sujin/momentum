@@ -68,9 +68,71 @@ console.log(plus);
                                                     // () 안쓰면 내가 필요한 시점에 handleResize함수를 호출하는 것. ()를 쓰면 지금 바로 호출하는 것
                                                     // 윈도우 사이즈가 변경될 때! 그때 로그 찍어라
 
-function handleClick(){
-    title.style.color = "blue";
+//const title = document.querySelector("#title");
+
+// const BASE_COLOR = "rgb(52, 73, 94)";
+// const OTHER_COLOR = "#7f8c8d";
+
+// function handleClick(){
+//     const currentColor = title.style.color;
+//     //console.log(currentColor);
+
+//     if(currentColor === BASE_COLOR)
+//     {
+//         title.style.color = OTHER_COLOR;
+//     } else
+//     {
+//         title.style.color = BASE_COLOR;
+//     }
+// }
+
+const title = document.querySelector("#title");
+const CLICKED_CLASS = "clicked";
+
+/*
+function handleClick()
+{
+    //const currentClass = title.className;
+    //console.log(currentClass);
+
+    const hasClass = title.classList.contains(CLICKED_CLASS);
+    
+    //if(currentClass !== CLICKED_CLASS)
+    if(hasClass)
+    {
+        title.classList.remove(CLICKED_CLASS);
+    } else
+    {
+        title.classList.add(CLICKED_CLASS);
+    }
+}
+*/
+
+// 위에서 했던거 한문장으로 처리 가능
+function handleClick()
+{
+    title.classList.toggle(CLICKED_CLASS);
 }
 
-title.addEventListener("click", handleClick)                                                  
+function init()
+{
+    title.addEventListener("click", handleClick);
+    
+}
+
+init();
+
+// function handleOffline()
+// {
+//     console.log("Bye bye");
+// }
+
+// function handleOnline()
+// {
+//     console.log("Welcome back")
+// }
+
+// window.addEventListener("offline", handleOffline);  // 인터넷 연결이 offline 상태일 때
+// window.addEventListener("online", handleOnline);    // 인터넷 연결이 online 상태일 때
+                                                
 
