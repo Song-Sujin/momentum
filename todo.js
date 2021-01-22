@@ -4,13 +4,14 @@ const toDoForm = document.querySelector(".js-toDoForm"),
 
 
 const TODOS_LS = 'toDos';
-const toDos = [];
+//const toDos = [];         const는 변경 불가하니까 let으로 변경
+let toDos = [];
 
 function deleteToDo(event)
 {
     const btn = event.target;
     const li = btn.parentNode;
-    toDoList.removeChild(li);
+    toDoList.removeChild(li);       // 기존에 있던 리스트에서 선택된 li 삭제
     const cleanToDos = toDos.filter(function(toDo){
         //return toDo.id !== li.id;   이건 숫자와 문자열비교라서 안됨
         return toDo.id !== parseInt(li.id); // 모든 toDos가 'li'의 id와 같지 않을 때
@@ -18,8 +19,11 @@ function deleteToDo(event)
     // filter는 array의 모든 아이템을 통해 함수를 실행하고,
     // 그 중 true인 아이템들만 가지고 새로운 array를 만든다.
 
-    // 방금 클릭한 id가 1인 경우가 아닌 toDos를 받아와야 함
-    console.log(cleanToDos);    // cleanToDos이건 -1이 되고 toDos이건 그대로 남아있는 상황
+    // 이제 필터링된 todo들만 담긴 array를 기존 array에 교체해야 함
+    toDos = cleanToDos;
+    saveToDos();    // localStorage에 toDos배열을 저장하기
+
+    console.log(cleanToDos);
 }
 
 function saveToDos()
