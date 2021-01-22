@@ -2,7 +2,6 @@ const toDoForm = document.querySelector(".js-toDoForm"),
     toDoInput = toDoForm.querySelector("input"),
     toDoList = document.querySelector(".js-toDoList");
 
-
 const TODOS_LS = 'toDos';
 //const toDos = [];         const는 변경 불가하니까 let으로 변경
 let toDos = [];

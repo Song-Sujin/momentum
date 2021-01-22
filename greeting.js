@@ -2,7 +2,7 @@ const form = document.querySelector(".js-form"),
     input = form.querySelector("input"),
     greeting = document.querySelector(".js-greetings");
     ;
-
+    
 const USER_LS = "currentUser",  // 사용자
     SHOWING_CN = "showing";     // 클래스명 노출
 
