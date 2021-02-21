@@ -1,96 +1,182 @@
 const toDoForm = document.querySelector(".js-toDoForm"),
-    toDoInput = toDoForm.querySelector("input"),
-    toDoList = document.querySelector(".js-toDoList");
+  toDoInput = toDoForm.querySelector("input"),
+  pendingList = document.querySelector(".js-pendingList"),
+  finishedList = document.querySelector(".js-finishedList");
 
-const TODOS_LS = 'toDos';
-//const toDos = [];         const는 변경 불가하니까 let으로 변경
-let toDos = [];
+const PEND_LS = "PENDING";
+const FIN_LS = "FINISHED";
+let pends = [];
+let finish = [];
 
-function deleteToDo(event)
-{
-    const btn = event.target;
-    const li = btn.parentNode;
-    toDoList.removeChild(li);       // 기존에 있던 리스트에서 선택된 li 삭제
-    const cleanToDos = toDos.filter(function(toDo){
-        //return toDo.id !== li.id;   이건 숫자와 문자열비교라서 안됨
-        return toDo.id !== parseInt(li.id); // 모든 toDos가 'li'의 id와 같지 않을 때
+// localStorage에 저장하기
+function saveToDos() {
+  localStorage.setItem(PEND_LS, JSON.stringify(pends));
+  localStorage.setItem(FIN_LS, JSON.stringify(finish));
+}
+
+// pending에서 삭제하기
+function deleteToDo(event) {
+  const btn = event.target;
+  const li = btn.parentNode;
+  pendingList.removeChild(li);
+
+  const cleanToDos = pends.filter(function (toDo) {
+    return toDo.id !== parseInt(li.id);
+  });
+  pends = cleanToDos;
+  saveToDos();
+}
+
+// finished에서 삭제하기
+function deleteToDoFin(event) {
+  const btn = event.target;
+  const li = btn.parentNode;
+  finishedList.removeChild(li);
+
+  const cleanToDos = finish.filter(function (toDo) {
+    return toDo.id !== parseInt(li.id);
+  });
+  finish = cleanToDos;
+  saveToDos();
+}
+
+// 완료하기
+// pending에서 제거
+// finish에 추가
+function finishToDo(event) {
+  // pending에서 제거
+  const btn = event.target;
+  const li = btn.parentNode;
+
+  pendingList.removeChild(li);
+
+  const cleanToDos = pends.filter(function (toDo) {
+    return toDo.id !== parseInt(li.id);
+  });
+  pends = cleanToDos;
+
+  // finished에 추가
+  paintToDoFin(li.firstChild.innerText);
+}
+
+// 다시 pending에 넣기
+function goToPending() {
+  // finished에서 제거
+  const btn = event.target;
+  const li = btn.parentNode;
+
+  finishedList.removeChild(li);
+
+  const cleanToDos = finish.filter(function (toDo) {
+    return toDo.id !== parseInt(li.id);
+  });
+  finish = cleanToDos;
+
+  // pending에 추가
+  paintToDo(li.firstChild.innerText);
+}
+
+// finish 리스트 뿌려주기
+function paintToDoFin(text) {
+  const li = document.createElement("li");
+  const delBtn = document.createElement("button");
+  const penBtn = document.createElement("button");
+  const span = document.createElement("span");
+  const newId = finish.length + 1;
+
+  delBtn.innerHTML = "❌";
+  penBtn.innerHTML = "⏪";
+
+  span.innerText = text;
+  li.appendChild(span);
+  li.appendChild(delBtn);
+  li.appendChild(penBtn);
+  li.id = newId;
+
+  // 화면상 리스트 추가하기
+  finishedList.appendChild(li);
+
+  // 삭제 버튼 클릭 시 삭제 함수 호출
+  delBtn.addEventListener("click", deleteToDoFin);
+
+  // pending버튼 클릭 시 pending에 넣는 함수 호출
+  penBtn.addEventListener("click", goToPending);
+
+  const finishedObj = {
+    text: text,
+    id: newId
+  };
+
+  finish.push(finishedObj);
+  saveToDos();
+}
+
+// pending 리스트 뿌려주기
+function paintToDo(text) {
+  const li = document.createElement("li");
+  const delBtn = document.createElement("button");
+  const finBtn = document.createElement("button");
+  const span = document.createElement("span");
+  const newId = pends.length + 1;
+
+  delBtn.innerHTML = "❌";
+  finBtn.innerHTML = "✅";
+
+  span.innerText = text;
+  li.appendChild(span);
+  li.appendChild(delBtn);
+  li.appendChild(finBtn);
+  li.id = newId;
+
+  // 첫 등록하면 Pending으로 넣기
+  pendingList.appendChild(li);
+
+  // 삭제 버튼 클릭 시 삭제 함수 호출
+  delBtn.addEventListener("click", deleteToDo);
+
+  // 완료버튼 클릭 시 finish에 넣는 함수 호출
+  finBtn.addEventListener("click", finishToDo);
+
+  const pendingObj = {
+    text: text,
+    id: newId
+  };
+  pends.push(pendingObj);
+  saveToDos();
+}
+
+// Pending에 최초 저장하기
+function handleSubmit(event) {
+  event.preventDefault();
+  const currentValue = toDoInput.value;
+  paintToDo(currentValue);
+  toDoInput.value = "";
+}
+
+// 기존 리스트 불러오기
+function loadToDos() {
+  const loadedToDos = localStorage.getItem(PEND_LS);
+  const loadedToDos2 = localStorage.getItem(FIN_LS);
+
+  // pending 리스트 불러오기
+  if (loadedToDos !== null) {
+    const parsedToDos = JSON.parse(loadedToDos);
+    parsedToDos.forEach(function (toDo) {
+      paintToDo(toDo.text);
     });
-    // filter는 array의 모든 아이템을 통해 함수를 실행하고,
-    // 그 중 true인 아이템들만 가지고 새로운 array를 만든다.
-
-    // 이제 필터링된 todo들만 담긴 array를 기존 array에 교체해야 함
-    toDos = cleanToDos;
-    saveToDos();    // localStorage에 toDos배열을 저장하기
-
-    console.log(cleanToDos);
+  }
+  // finished 리스트 불러오기
+  if (loadedToDos2 !== null) {
+    const parsedToDos2 = JSON.parse(loadedToDos2);
+    parsedToDos2.forEach(function (toDo) {
+      paintToDoFin(toDo.text);
+    });
+  }
 }
 
-function saveToDos()
-{
-    // 입력된 todo를 String 형태로 TODOS_LS에 담아두기
-    localStorage.setItem(TODOS_LS, JSON.stringify(toDos));  // localStorage에는 자바스크립트의 data를 저장할 수 없음. String만 가능
-}
-
-function paintToDo(text)
-{
-    //console.log(text);
-    const li = document.createElement("li");
-    const delBtn = document.createElement("button");
-    const span = document.createElement("span");
-    const newId = toDos.length + 1;
-
-    delBtn.innerHTML = "❌";
-    delBtn.addEventListener("click", deleteToDo);
-
-    span.innerText = text;
-    li.appendChild(delBtn);
-    li.appendChild(span);
-    li.id = newId;
-
-    toDoList.appendChild(li);   // 입력된 정보 뿌려주기
-
-    const toDoObj = 
-    {
-        text: text,
-        id: newId
-    };
-    toDos.push(toDoObj);
-    saveToDos();
-}
-    
-function handleSubmit(event)
-{
-    event.preventDefault();
-    const currentValue = toDoInput.value;
-    paintToDo(currentValue);
-    toDoInput.value = "";
-}
-
-/* 이렇게 따로 빼는것도 가능하다.
-function something(toDo)
-{
-    console.log(toDo.text);
-}
-*/
-
-function loadToDos()    // 페이지가 로드될때 기존 등록되어 있는 todo들을 조회해서 뿌려주기
-{
-    const loadedToDos = localStorage.getItem(TODOS_LS);
-    //console.log(loadedToDos);     이건 String
-    if(loadedToDos !== null)    // 기존에 등록된 todo가 있으면
-    {
-        const parsedToDos = JSON.parse(loadedToDos);    // JSON 형태로 만들어서
-        parsedToDos.forEach(function(toDo){             // 각 항목들마다
-            //console.log(toDo.text);
-            paintToDo(toDo.text);                       // text값을 뿌려주기
-        });
-    }
-}
-
-function init()
-{
-    loadToDos();
-    toDoForm.addEventListener("submit", handleSubmit)
+function init() {
+  loadToDos();
+  toDoForm.addEventListener("submit", handleSubmit);
 }
 
 init();
